@@ -1,5 +1,4 @@
 ﻿using FakeProduct.Models;
-using System.ComponentModel;
 using System.Net.Http.Json;
 
 namespace FakeProduct.Services;
