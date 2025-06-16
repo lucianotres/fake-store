@@ -8,27 +8,50 @@
 <h1>Loja Fake</h1>
 <p>Bem vindos a nossa loja fake!</p>
 
-<button @onclick="Teste">Teste</button>
+<button @onclick="ListarProdutos">Atualizar Lista</button>
+<button @onclick="AdicionarProduto">Novo Produto</button>
+
+@if (verProduto)
+{
+    <ProdutoView product="selecionadoProduto"
+                 OnCancelar="() => { verProduto = false; StateHasChanged(); }"
+                 OnSalvar="ok => { verProduto = false; StateHasChanged(); }" />
+}
 
 @foreach (var p in Products)
 {
-    <div>
-        <h2>@p.Title</h2>
-        <p>@p.Description</p>
-        <img src="@p.Image" alt="@p.Title" style="width: 100px; height: 100px;" />
-        <p>Price: @p.Price.ToString("C")</p>
-    </div>
+    <ProdutoListView product="p" />
+    <button @onclick="() => { selecionadoProduto = p; verProduto = true; }">Editar</button>
+    <button @onclick="() => ExcluirProduto(p)">Excluir</button>
 }
-
 
 
 @code {
     private List<Product> Products = new();
+    private bool verProduto = false;
+    private Product? selecionadoProduto = null;
 
-    private async void Teste()
+    private async void ListarProdutos()
     {
         Products = await fakeStoreService.GetProductsAsync();
 
-        StateHasChanged(); 
+        StateHasChanged();
+    }
+
+    private void AdicionarProduto(MouseEventArgs args)
+    {
+        selecionadoProduto = null;
+        verProduto = !verProduto;
+    }
+
+    private async void ExcluirProduto(Product product)
+    {       
+        var ok = await fakeStoreService.DeleteProductAsync(product.Id);
+
+        if (ok)
+        {
+            Products.Remove(product);
+            StateHasChanged();
+        }
     }
 }

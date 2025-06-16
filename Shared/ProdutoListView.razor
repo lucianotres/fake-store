@@ -1,0 +1,13 @@
+﻿@using FakeProduct.Models
+
+<div>
+    <h2>@product.Title</h2>
+    <p>@product.Description</p>
+    <img src="@product.Image" alt="@product.Title" style="width: 100px; height: 100px;" />
+    <p>Price: @product.Price.ToString("C")</p>
+</div>
+
+@code {
+    [Parameter]
+    public Product product { get; set; } = new();
+}
