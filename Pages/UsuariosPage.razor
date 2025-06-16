@@ -1,0 +1,78 @@
+﻿@page "/usuarios"
+@using FakeProduct.Models
+@using FakeProduct.Services
+@inject FakeStoreUsersService fakeStoreService
+
+<PageTitle>Cadastro de Usuários</PageTitle>
+
+<h1>Cadastro de Usuários</h1>
+
+<button onclick="history.back()">Retornar</button>
+<button @onclick="ListarUsuarios">Atualizar Lista</button>
+<button @onclick="AdicionarUsuario">Novo Usuário</button>
+
+@if (verUsuario)
+{
+    <UsuarioView user="selecionadoUsuario"
+                 OnCancelar="() => { verUsuario = false; StateHasChanged(); }"
+                 OnSalvar="ok => { verUsuario = false; StateHasChanged(); }" />
+}
+
+@if (carregando)
+{
+    <p>Carregando usuários...</p>
+}
+
+@foreach (var u in Usuarios)
+{
+    <UsuarioListView user="u" />
+    <button @onclick="() => { selecionadoUsuario = u; verUsuario = true; }">Editar</button>
+    <button @onclick="() => ExcluirProduto(u)">Excluir</button>
+}
+
+
+@code {
+    private List<User> Usuarios = new();
+    private bool verUsuario = false;
+    private User? selecionadoUsuario = null;
+    private bool carregando = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            ListarUsuarios();
+    }
+
+    private async void ListarUsuarios()
+    {
+        try
+        {
+            carregando = true;
+            StateHasChanged();
+
+            Usuarios = await fakeStoreService.GetUsersAsync();
+        }
+        finally
+        { 
+            carregando = false; 
+            StateHasChanged(); 
+        }
+    }
+
+    private void AdicionarUsuario(MouseEventArgs args)
+    {
+        selecionadoUsuario = null;
+        verUsuario = !verUsuario;
+    }
+
+    private async void ExcluirProduto(User user)
+    {
+        var ok = await fakeStoreService.DeleteUserAsync(user.Id);
+
+        if (ok)
+        {
+            Usuarios.Remove(user);
+            StateHasChanged();
+        }
+    }
+}

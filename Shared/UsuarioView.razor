@@ -1,0 +1,61 @@
+﻿@using FakeProduct.Models
+@using FakeProduct.Services
+@inject FakeStoreUsersService fakeStoreService;
+
+<div class="box">
+    <div class="field username">
+        <label for="username">Username</label>
+        <input type="text" id="username" @bind="user.Username" />
+    </div>
+    <div class="field email">
+        <label for="email">e-mail</label>
+        <input type="email" id="email" @bind="user.Email" />
+    </div>
+    <div class="field password">
+        <label for="password">Senha</label>
+        <input type="password" id="password" @bind="user.Password" />
+    </div>
+
+    <button type="button" @onclick="Salvar">Salvar</button>
+    <button type="button" @onclick="Cancelar">Cancelar</button>
+</div>
+
+@code {
+    [Parameter]
+    public User user { get; set; } = new();
+
+    [Parameter]
+    public Action? OnCancelar { get; set; }
+
+    [Parameter]
+    public Action<bool>? OnSalvar { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (user == null)
+        {
+            user = new User() { Id = 0 };
+        }
+    }
+
+    private void Cancelar(MouseEventArgs args)
+    {
+        OnCancelar?.Invoke();
+    }
+
+    private async Task Salvar(MouseEventArgs args)
+    {
+        if (user.Id == 0)
+        {
+            var result = await fakeStoreService.PostUserAsync(user);
+            OnSalvar?.Invoke(result != null);
+        }
+        else
+        {
+            var result = await fakeStoreService.PutUserAsync(user);
+            OnSalvar?.Invoke(result != null);
+        }
+    }
+
+
+}

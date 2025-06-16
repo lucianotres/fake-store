@@ -80,15 +80,15 @@ public class FakeStoreUsersService
         return newUser;
     }
 
-    public async Task<User?> PutUserAsync(int id, User user)
+    public async Task<User?> PutUserAsync(User user)
     {
-        _log.LogInformation($"Atualizando usuário com ID {id}...");
+        _log.LogInformation($"Atualizando usuário com ID {user.Id}...");
         var client = _httpClientFactory.CreateClient("fakestore");
-        var response = await client.PutAsJsonAsync($"/users/{id}", user);
+        var response = await client.PutAsJsonAsync($"/users/{user.Id}", user);
         
         if (!response.IsSuccessStatusCode)
         {
-            _log.LogError($"Falha {response.StatusCode}: não pode atualizar usuário com ID {id}");
+            _log.LogError($"Falha {response.StatusCode}: não pode atualizar usuário com ID {user.Id}");
             return null;
         }
         
@@ -96,11 +96,11 @@ public class FakeStoreUsersService
         
         if (updatedUser == null)
         {
-            _log.LogWarning($"Usuário com ID {id} atualizado, mas não foi possível ler o retorno");
+            _log.LogWarning($"Usuário com ID {user.Id} atualizado, mas não foi possível ler o retorno");
             return null;
         }
         
-        _log.LogInformation($"Usuário com ID {id} atualizado.");
+        _log.LogInformation($"Usuário com ID {user.Id} atualizado.");
         return updatedUser;
     }
 

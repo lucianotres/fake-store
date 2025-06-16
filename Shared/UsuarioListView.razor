@@ -1,0 +1,11 @@
+﻿@using FakeProduct.Models
+
+<div>
+    <h2>@user.Username</h2>
+    <p>@user.Email</p>
+</div>
+
+@code {
+    [Parameter]
+    public User user { get; set; } = new();
+}
