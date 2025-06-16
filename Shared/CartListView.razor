@@ -1,0 +1,41 @@
+﻿@using FakeProduct.Models
+@using FakeProduct.Services
+@inject LocalStorageDataService localStorageService;
+
+<div>
+    <h2>Carrinho nº: @cart.Id</h2>
+    @if (cart.Products.Count == 0) {
+        <p>Sem produtos</p>
+    }
+    else if (cart.Products.Count == 1) {
+        <p>1 produto</p>
+    }
+    else {
+        <p>@cart.Products.Count produtos</p>
+    }
+    <p>Quantidade total: @cart.Products.Sum(p => p.Quantity).ToString("C")</p>
+    <p>Total: @Total.ToString("C")</p>
+</div>
+
+@code {
+    [Parameter]
+    public Cart cart { get; set; } = new();
+
+    private decimal Total = 0;
+
+    protected override void OnParametersSet()
+    {
+        if (cart == null)
+        {
+            Total = 0;
+        }
+        else
+        {
+            Total = cart.Products.Sum(p =>
+            {
+                var product = localStorageService.Produtos.FirstOrDefault(w => w.Id == p.ProductId);
+                return product != null ? product.Price * p.Quantity : 0;
+            });
+        }
+    }
+}

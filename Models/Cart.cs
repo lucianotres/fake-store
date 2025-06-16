@@ -4,6 +4,6 @@ public class Cart
 {
     public int Id { get; set; } = 0;
     public int UserId { get; set; } = 0;
-    public List<Product> Products { get; set; } = new ();
-
+    public DateTime? Date { get; set; }
+    public List<CartProduct> Products { get; set; } = new ();
 }

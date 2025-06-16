@@ -1,0 +1,52 @@
+﻿@page "/carrinhos"
+@using FakeProduct.Models
+@using FakeProduct.Services
+@inject FakeStoreCartsService fakeStoreService
+@inject LocalStorageDataService localStorageService;
+
+<PageTitle>Carrinhos de Compras</PageTitle>
+
+<h1>Carrinhos de Compras</h1>
+
+<button onclick="history.back()">Retornar</button>
+
+@if (carregando)
+{
+    <p>Carregando produtos...</p>
+}
+
+@foreach (var c in Carrinhos)
+{
+    <CartListView cart="c" />
+    <button>Ver</button>
+}
+
+@code {
+    private List<Cart> Carrinhos = new();
+    private bool carregando = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            ListarCarrinhos();
+    }
+
+    private async void ListarCarrinhos()
+    {
+        try
+        {
+            carregando = true;
+            StateHasChanged();
+
+            await localStorageService.AtualizarListaProdutos();
+
+            Carrinhos = await fakeStoreService.GetCartsAsync();
+        }
+        finally
+        {
+            carregando = false;
+            StateHasChanged();
+        }
+    }
+
+}

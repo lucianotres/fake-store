@@ -14,4 +14,6 @@ builder.Services.AddScoped<FakeStoreCartsService>();
 builder.Services.AddScoped<FakeStoreUsersService>();
 builder.Services.AddScoped<FakeStoreLoginService>();
 
+builder.Services.AddSingleton<LocalStorageDataService>();
+
 await builder.Build().RunAsync();
