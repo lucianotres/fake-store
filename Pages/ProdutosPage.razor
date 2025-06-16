@@ -1,0 +1,78 @@
+﻿@page "/produtos"
+@using FakeProduct.Models
+@using FakeProduct.Services
+@inject FakeStoreProductsService fakeStoreService
+
+<PageTitle>Cadastro de Produtos</PageTitle>
+
+<h1>Cadastro de Produtos</h1>
+
+<button onclick="history.back()">Retornar</button>
+<button @onclick="ListarProdutos">Atualizar Lista</button>
+<button @onclick="AdicionarProduto">Novo Produto</button>
+
+@if (verProduto)
+{
+    <ProdutoView product="selecionadoProduto"
+                 OnCancelar="() => { verProduto = false; StateHasChanged(); }"
+                 OnSalvar="ok => { verProduto = false; StateHasChanged(); }" />
+}
+
+@if (carregando)
+{
+    <p>Carregando produtos...</p>
+}
+
+@foreach (var p in Products)
+{
+    <ProdutoListView product="p" />
+    <button @onclick="() => { selecionadoProduto = p; verProduto = true; }">Editar</button>
+    <button @onclick="() => ExcluirProduto(p)">Excluir</button>
+}
+
+
+@code {
+    private List<Product> Products = new();
+    private bool verProduto = false;
+    private Product? selecionadoProduto = null;
+    private bool carregando = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            ListarProdutos();
+    }
+
+    private async void ListarProdutos()
+    {
+        try
+        {
+            carregando = true;
+            StateHasChanged();
+
+            Products = await fakeStoreService.GetProductsAsync();
+        }
+        finally
+        { 
+            carregando = false; 
+            StateHasChanged(); 
+        }
+    }
+
+    private void AdicionarProduto(MouseEventArgs args)
+    {
+        selecionadoProduto = null;
+        verProduto = !verProduto;
+    }
+
+    private async void ExcluirProduto(Product product)
+    {
+        var ok = await fakeStoreService.DeleteProductAsync(product.Id);
+
+        if (ok)
+        {
+            Products.Remove(product);
+            StateHasChanged();
+        }
+    }
+}

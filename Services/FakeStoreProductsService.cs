@@ -4,12 +4,12 @@ using System.Net.Http.Json;
 
 namespace FakeProduct.Services;
 
-public class FakeStoreService
+public class FakeStoreProductsService
 {
-    private ILogger<FakeStoreService> _log;
+    private ILogger<FakeStoreProductsService> _log;
     private IHttpClientFactory _httpClientFactory;
 
-    public FakeStoreService(ILogger<FakeStoreService> logger, IHttpClientFactory httpClientFactory)
+    public FakeStoreProductsService(ILogger<FakeStoreProductsService> logger, IHttpClientFactory httpClientFactory)
     {
         _log = logger;
         _httpClientFactory = httpClientFactory;

@@ -9,6 +9,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddHttpClient("fakestore", http => http.BaseAddress = new Uri("https://fakestoreapi.com/"));
-builder.Services.AddScoped<FakeStoreService>();
+builder.Services.AddScoped<FakeStoreProductsService>();
 
 await builder.Build().RunAsync();
