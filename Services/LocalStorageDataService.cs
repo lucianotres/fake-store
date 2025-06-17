@@ -6,8 +6,9 @@ public class LocalStorageDataService
 {
     private readonly IServiceProvider _servciceProvider;
 
-    public List<Product> Produtos { get; set; } = new();
-    public List<User> Usuarios { get; set; } = new();
+    public List<Product> Produtos { get; private set; } = new();
+    public List<User> Usuarios { get; private set; } = new();
+    public List<Cart> Carrinhos { get; private set; } = new();
 
     public LocalStorageDataService(IServiceProvider serviceProvider)
     {
@@ -37,6 +38,19 @@ public class LocalStorageDataService
         {
             Usuarios.Clear();
             Usuarios.AddRange(usuarios);
+        }
+    }
+
+    public async Task AtualizarListaCarrinhos()
+    {
+        using var scope = _servciceProvider.CreateScope();
+        var cartsService = scope.ServiceProvider.GetRequiredService<FakeStoreCartsService>();
+
+        var carrinhos = await cartsService.GetCartsAsync();
+        if (carrinhos != null)
+        {
+            Carrinhos.Clear();
+            Carrinhos.AddRange(carrinhos);
         }
     }
 }

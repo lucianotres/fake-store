@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Authorization
 @inject FakeStoreProductsService fakeStoreService
 @inject FakeStoreCartsService cartsServices
+@inject LocalStorageDataService localStorageDataService
 @inject IJSRuntime jsRuntime
 
 @if (AddToCart.HasValue)
@@ -102,7 +103,7 @@ else
         if (AddToCart == null || product == null)
             return;
 
-        var cart = await cartsServices.GetCartAsync(AddToCart.Value);
+        var cart = localStorageDataService.Carrinhos.FirstOrDefault(w => w.Id == AddToCart.Value);
         if (cart == null)
             return;
 
@@ -122,6 +123,9 @@ else
 
         var updatedCart = await cartsServices.PutCartAsync(cart);
         if (updatedCart != null)
+        {
+            cart.Products = updatedCart.Products;
             await jsRuntime.InvokeVoidAsync("history.back");
+        }
     }
 }

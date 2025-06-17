@@ -2,7 +2,7 @@
 @using System.Security.Claims
 @using FakeProduct.Services
 @inject AuthenticationStateProvider authenticationStateProvider
-@inject FakeStoreCartsService fakeStoreService
+@inject LocalStorageDataService localStorageService
 @inject NavigationManager Navigation
 
 <PageTitle>Início</PageTitle>
@@ -36,11 +36,9 @@
         if (!idUser.HasValue)
             return;
 
-        var carts = await fakeStoreService.GetCartsAsync();
-        if (carts == null)
-            return;
+        await localStorageService.AtualizarListaCarrinhos();
 
-        var cart = carts.FirstOrDefault(w => w.UserId == idUser.Value);
+        var cart = localStorageService.Carrinhos.FirstOrDefault(w => w.UserId == idUser.Value);
         if (cart == null)
             return;
 

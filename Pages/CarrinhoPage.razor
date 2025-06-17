@@ -90,7 +90,6 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        await localStorageDataService.AtualizarListaProdutos();
         await CarregaCarrinho();
     }
 
@@ -99,7 +98,13 @@ else
         if (CarrinhoId <= 0)
             return;
 
-        Carrinho = await fakeStoreCartsService.GetCartAsync(CarrinhoId);
+        if (!localStorageDataService.Carrinhos.Exists(w => w.Id == CarrinhoId))
+        {
+            await localStorageDataService.AtualizarListaProdutos();
+            await localStorageDataService.AtualizarListaCarrinhos();
+        }
+
+        Carrinho = localStorageDataService.Carrinhos.FirstOrDefault(w => w.Id == CarrinhoId);
     }
 
     private void DoAlterarQtd(CartProduct cartProduct)
@@ -141,7 +146,7 @@ else
         var result = await fakeStoreCartsService.PutCartAsync(Carrinho);
         if (result == null || result.Products.Count != Carrinho.Products.Count) //recarrega a lista se difere
         {
-            await CarregaCarrinho();
+            CarregaCarrinho();
         }
     }
 
