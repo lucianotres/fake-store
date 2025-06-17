@@ -2,22 +2,34 @@
 @using FakeProduct.Services
 @inject FakeStoreUsersService fakeStoreService;
 
-<div class="box">
-    <div class="field username">
-        <label for="username">Username</label>
-        <input type="text" id="username" @bind="user.Username" />
-    </div>
-    <div class="field email">
-        <label for="email">e-mail</label>
-        <input type="email" id="email" @bind="user.Email" />
-    </div>
-    <div class="field password">
-        <label for="password">Senha</label>
-        <input type="password" id="password" @bind="user.Password" />
-    </div>
+<div class="h-100 d-flex flex-column align-items-center justify-content-center">
+    <div class="row formStyle p-0">
+        <div class="col-12 col-md-12 p-4">
+            <EditForm Model="user" OnValidSubmit="Salvar">
+                <DataAnnotationsValidator />
+                <div class="mb-6">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-control" type="text" id="username" @bind="user.Username" />
+                    <ValidationMessage For="@(() => user.Username)" />
+                </div>
+                <div class="mb-6">
+                    <label class="form-label" for="email">e-mail</label>
+                    <input class="form-control" type="email" id="email" @bind="user.Email" />
+                    <ValidationMessage For="@(() => user.Email)" />
+                </div>
+                <div class="mb-6">
+                    <label class="form-label" for="password">Senha</label>
+                    <input class="form-control" type="password" id="password" @bind="user.Password" />
+                    <ValidationMessage For="@(() => user.Password)" />
+                </div>
 
-    <button type="button" @onclick="Salvar">Salvar</button>
-    <button type="button" @onclick="Cancelar">Cancelar</button>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">Salvar</button>
+                    <button type="button" class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -38,12 +50,12 @@
         }
     }
 
-    private void Cancelar(MouseEventArgs args)
+    private void Cancelar()
     {
         OnCancelar?.Invoke();
     }
 
-    private async Task Salvar(MouseEventArgs args)
+    private async Task Salvar()
     {
         if (user.Id == 0)
         {

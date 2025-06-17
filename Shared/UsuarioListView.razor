@@ -1,11 +1,21 @@
 ﻿@using FakeProduct.Models
 
-<div>
-    <h2>@user.Username</h2>
-    <p>@user.Email</p>
-</div>
+<tr>
+    <td>@user.Username</td>
+    <td>@user.Email</td>
+    <td>
+        <button class="btn btn-sm btn-primary" @onclick="() => OnEditar?.Invoke()">Editar</button>
+        <button class="btn btn-sm btn-danger" @onclick="() => OnExcluir?.Invoke()">Excluir</button>
+    </td>
+</tr>
 
 @code {
     [Parameter]
     public User user { get; set; } = new();
+
+    [Parameter]
+    public Action? OnEditar { get; set; }
+
+    [Parameter]
+    public Action? OnExcluir { get; set; }
 }

@@ -9,9 +9,8 @@
 
 <h1>Cadastro de Usuários</h1>
 
-<button onclick="history.back()">Retornar</button>
-<button @onclick="ListarUsuarios">Atualizar Lista</button>
-<button @onclick="AdicionarUsuario">Novo Usuário</button>
+<button class="btn btn-success" @onclick="ListarUsuarios">Atualizar Lista</button>
+<button class="btn btn-primary" @onclick="AdicionarUsuario">Novo Usuário</button>
 
 @if (verUsuario)
 {
@@ -24,12 +23,25 @@
 {
     <p>Carregando usuários...</p>
 }
-
-@foreach (var u in Usuarios)
+else
 {
-    <UsuarioListView user="u" />
-    <button @onclick="() => { selecionadoUsuario = u; verUsuario = true; }">Editar</button>
-    <button @onclick="() => ExcluirProduto(u)">Excluir</button>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>e-mail</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Usuarios)
+            {
+                <UsuarioListView user="u" 
+                    OnEditar="() => { selecionadoUsuario = u; verUsuario = true; StateHasChanged(); }"
+                    OnExcluir="() => ExcluirProduto(u)" />
+            }
+        </tbody>
+    </table>
 }
 
 

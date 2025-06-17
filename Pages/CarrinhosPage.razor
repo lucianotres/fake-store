@@ -21,17 +21,19 @@
             <th></th>
         </tr>
     </thead>
-    @if (carregando)
-    {
-        <tr>
-            <td colspan="5">Carregando produtos...</td>
-        </tr>
-    }
-    else
-        @foreach (var c in Carrinhos)
+    <tbody>
+        @if (carregando)
         {
-            <CartListView cart="c" OnRemover="() => { Carrinhos.Remove(c); StateHasChanged(); }" />
+            <tr>
+                <td colspan="5">Carregando produtos...</td>
+            </tr>
         }
+        else
+            @foreach (var c in Carrinhos)
+            {
+                <CartListView cart="c" OnRemover="() => { Carrinhos.Remove(c); StateHasChanged(); }" />
+            }
+    </tbody>
 </table>
 
 @code {
