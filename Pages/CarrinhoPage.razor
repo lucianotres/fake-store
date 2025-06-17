@@ -3,6 +3,7 @@
 @using FakeProduct.Services
 @inject FakeStoreCartsService fakeStoreCartsService
 @inject LocalStorageDataService localStorageDataService
+@inject NavigationManager navigationManager
 
 <PageTitle>Carrinho @CarrinhoId</PageTitle>
 
@@ -10,12 +11,13 @@
 
 @if(Carrinho == null)
 {
-    <p>Carrinho não encontrado!</p>
+    <p>Carregando carrinho...</p>
 }
 else
 {
     <div>
-        <div>Data: @Carrinho?.Date</div>
+        <button class="btn btn-success" @onclick="DoAddProduto">Adicionar Produto</button>
+        <div>Data: @Carrinho?.Date?.ToString("dd/MM/yyyy")</div>
     </div>
 
     <div>
@@ -26,30 +28,43 @@ else
         }
         else
         {
-            <ul>
-                @foreach (var i in Products)
-                {
-                    <li>
-                        <div>@i.product?.Title</div>
-                        <div>@i.product?.Price.ToString("C")</div>
-                        <div>
-                            @if (i.cartProduct == AlteraQtde)
-                            {
-                                <input type="number" @bind="i.cartProduct.Quantity" min="1" />
-                                <button @onclick="() => DoAlterarQtdSalva(i.cartProduct)">Salvar</button>
-                                <button @onclick="() => DoAlterarQtd(i.cartProduct)">Cancela</button>
-                            }
-                            else
-                            {            
-                                <text> @i.cartProduct.Quantity </text>
-                                <button @onclick="() => DoAlterarQtd(i.cartProduct)">Alterar</button>
-                            }
-                        </div>
-                        <div>@(((i.product?.Price ?? 0) * i.cartProduct.Quantity).ToString("C"))</div>
-                        <button @onclick="() => DoRemover(i.cartProduct)">Remover</button>
-                    </li>
-                }
-            </ul>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Preço</th>
+                        <th>Quantidade</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>                    
+                    @foreach (var i in Products)
+                    {
+                        <tr>
+                            <td>@i.product?.Title</td>
+                            <td>@i.product?.Price.ToString("C")</td>
+                            <td>
+                                @if (i.cartProduct == AlteraQtde)
+                                {
+                                    <input type="number" @bind="i.cartProduct.Quantity" min="1" style="width: 50px;" />
+                                    <button class="btn btn-sm btn-success" @onclick="() => DoAlterarQtdSalva(i.cartProduct)">Salvar</button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DoAlterarQtd(i.cartProduct)">Cancela</button>
+                                }
+                                else
+                                {            
+                                    <text> @i.cartProduct.Quantity </text>
+                                    <button class="btn btn-sm btn-primary" @onclick="() => DoAlterarQtd(i.cartProduct)">Alterar</button>
+                                }
+                            </td>
+                            <td>@(((i.product?.Price ?? 0) * i.cartProduct.Quantity).ToString("C"))</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DoRemover(i.cartProduct)">Remover</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         }
     </div>
 }
@@ -123,11 +138,18 @@ else
         if (Carrinho == null)
             return;
 
-        var result = await fakeStoreCartsService.PutCartAsync(Carrinho.Id, Carrinho);
+        var result = await fakeStoreCartsService.PutCartAsync(Carrinho);
         if (result == null || result.Products.Count != Carrinho.Products.Count) //recarrega a lista se difere
         {
             await CarregaCarrinho();
         }
     }
 
+    private void DoAddProduto()
+    {
+        if (Carrinho == null)
+            return;
+
+        navigationManager.NavigateTo($"/produtos?addToCart={CarrinhoId}", false);
+    }
 }

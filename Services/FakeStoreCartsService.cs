@@ -80,15 +80,15 @@ public class FakeStoreCartsService
         return newCart;
     }
 
-    public async Task<Cart?> PutCartAsync(int id, Cart cart)
+    public async Task<Cart?> PutCartAsync(Cart cart)
     {
-        _log.LogInformation($"Atualizando carrinho com ID {id}...");
+        _log.LogInformation($"Atualizando carrinho com ID {cart.Id}...");
         var client = _httpClientFactory.CreateClient("fakestore");
-        var response = await client.PutAsJsonAsync($"/carts/{id}", cart);
+        var response = await client.PutAsJsonAsync($"/carts/{cart.Id}", cart);
         
         if (!response.IsSuccessStatusCode)
         {
-            _log.LogError($"Falha {response.StatusCode}: não pode atualizar carrinho com ID {id}");
+            _log.LogError($"Falha {response.StatusCode}: não pode atualizar carrinho com ID {cart.Id}");
             return null;
         }
         
@@ -96,11 +96,11 @@ public class FakeStoreCartsService
         
         if (updatedCart == null)
         {
-            _log.LogWarning($"Carrinho com ID {id} atualizado, mas não foi possível ler o retorno");
+            _log.LogWarning($"Carrinho com ID {cart.Id} atualizado, mas não foi possível ler o retorno");
             return null;
         }
         
-        _log.LogInformation($"Carrinho com ID {id} atualizado.");
+        _log.LogInformation($"Carrinho com ID {cart.Id} atualizado.");
         return updatedCart;
     }
 

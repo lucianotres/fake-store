@@ -7,8 +7,15 @@
         <p class="card-text">@product.Description</p>    
         <div class="card-footer">
             <div>Preço: <strong>@product.Price.ToString("C")</strong></div>
-            <button class="btn btn-sm btn-primary" @onclick="() => OnEditar?.Invoke()">Editar</button>
-            <button class="btn btn-sm btn-danger" @onclick="() => OnExcluir?.Invoke()">Excluir</button>
+            @if (OnSelecionar != null)
+            {
+                <button class="btn btn-sm btn-primary" @onclick="() => OnSelecionar?.Invoke()">Selecionar</button>
+            }
+            else
+            {
+                <button class="btn btn-sm btn-primary" @onclick="() => OnEditar?.Invoke()">Editar</button>
+                <button class="btn btn-sm btn-danger" @onclick="() => OnExcluir?.Invoke()">Excluir</button>
+            }
         </div>
     </div>
 </div>
@@ -22,4 +29,7 @@
 
     [Parameter]
     public Action? OnExcluir { get; set; }
+
+    [Parameter]
+    public Action? OnSelecionar { get; set; }
 }

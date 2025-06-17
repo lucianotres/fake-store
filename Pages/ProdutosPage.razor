@@ -4,13 +4,22 @@
 @using FakeProduct.Services
 @using Microsoft.AspNetCore.Authorization
 @inject FakeStoreProductsService fakeStoreService
+@inject FakeStoreCartsService cartsServices
+@inject IJSRuntime jsRuntime
 
-<PageTitle>Cadastro de Produtos</PageTitle>
+@if (AddToCart.HasValue)
+{
+    <PageTitle>Lista de Produtos</PageTitle>
+    <h1>Lista de Produtos</h1>
+}
+else
+{
+    <PageTitle>Cadastro de Produtos</PageTitle>
+    <h1>Cadastro de Produtos</h1>
 
-<h1>Cadastro de Produtos</h1>
-
-<button class="btn btn-success" @onclick="ListarProdutos">Atualizar Lista</button>
-<button class="btn btn-primary" @onclick="AdicionarProduto">Novo Produto</button>
+    <button class="btn btn-success" @onclick="ListarProdutos">Atualizar Lista</button>
+    <button class="btn btn-primary" @onclick="AdicionarProduto">Novo Produto</button>
+}
 
 @if (verProduto)
 {
@@ -26,9 +35,17 @@
 
 @foreach (var p in Products)
 {
-    <ProdutoListView product="p" @key="p.Id"
-        OnEditar="() => { selecionadoProduto = p; verProduto = true; StateHasChanged(); }"
-        OnExcluir="() => ExcluirProduto(p)" />
+    @if(AddToCart.HasValue)
+    {
+        <ProdutoListView product="p" @key="p.Id"
+            OnSelecionar="() => AdicionarAoCarrinho(p)"/>
+    }
+    else
+    {
+        <ProdutoListView product="p" @key="p.Id"
+            OnEditar="() => { selecionadoProduto = p; verProduto = true; StateHasChanged(); }"
+            OnExcluir="() => ExcluirProduto(p)" />
+    }
 }
 
 
@@ -37,6 +54,9 @@
     private bool verProduto = false;
     private Product? selecionadoProduto = null;
     private bool carregando = false;
+
+    [SupplyParameterFromQuery]
+    public int? AddToCart { get; set; } = null;
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -75,5 +95,33 @@
             Products.Remove(product);
             StateHasChanged();
         }
+    }
+
+    private async void AdicionarAoCarrinho(Product product)
+    {
+        if (AddToCart == null || product == null)
+            return;
+
+        var cart = await cartsServices.GetCartAsync(AddToCart.Value);
+        if (cart == null)
+            return;
+
+        //só adiciona se ainda não tem
+        var cartProduct = cart.Products.FirstOrDefault(w => w.ProductId == product.Id);
+        if (cartProduct == null)
+        {
+            cartProduct = new CartProduct
+            {
+                ProductId = product.Id,
+                Quantity = 1
+            };
+            cart.Products.Add(cartProduct);
+        }
+        else
+            cartProduct.Quantity++;
+
+        var updatedCart = await cartsServices.PutCartAsync(cart);
+        if (updatedCart != null)
+            await jsRuntime.InvokeVoidAsync("history.back");
     }
 }
