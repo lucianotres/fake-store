@@ -3,7 +3,10 @@
 <div class="card">
     <img class="card-img-top" src="@product.Image" alt="@product.Title" />
     <div class="card-body">
-        <h5 class="card-title">@product.Title</h5>
+        <h5 class="card-title">
+            @product.Title
+            <span class="badge bg-secondary">@product.Category</span>
+        </h5>
         <p class="card-text">@product.Description</p>    
         <div class="card-footer">
             <div>Preço: <strong>@product.Price.ToString("C")</strong></div>
