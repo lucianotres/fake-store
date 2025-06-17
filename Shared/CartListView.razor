@@ -1,25 +1,31 @@
 ﻿@using FakeProduct.Models
 @using FakeProduct.Services
-@inject LocalStorageDataService localStorageService;
+@inject LocalStorageDataService localStorageService
+@inject FakeStoreCartsService fakeStoreService
+@inject NavigationManager navigationManager
 
-<div>
-    <h2>Carrinho nº: @cart.Id</h2>
+<tr>
+    <td>@cart.Id</td>
     @if (cart.Products.Count == 0) {
-        <p>Sem produtos</p>
-    }
-    else if (cart.Products.Count == 1) {
-        <p>1 produto</p>
+        <td>Sem</td>
     }
     else {
-        <p>@cart.Products.Count produtos</p>
+        <td>@cart.Products.Count</td>
     }
-    <p>Quantidade total: @cart.Products.Sum(p => p.Quantity).ToString("C")</p>
-    <p>Total: @Total.ToString("C")</p>
-</div>
+    <td>@cart.Products.Sum(p => p.Quantity)</td>
+    <td>@Total.ToString("C")</td>
+    <td class="text-nowrap">
+        <button class="btn btn-primary btn-sm btn-primary-ajusta" @onclick="DoVer">Ver</button>
+        <button class="btn btn-danger btn-sm btn-danger-ajusta" @onclick="DoRemover">Remover</button>
+    </td>
+</tr>
 
 @code {
     [Parameter]
     public Cart cart { get; set; } = new();
+
+    [Parameter]
+    public Action? OnRemover { get; set; }
 
     private decimal Total = 0;
 
@@ -37,5 +43,19 @@
                 return product != null ? product.Price * p.Quantity : 0;
             });
         }
+    }
+
+    private async void DoRemover()
+    {
+        if (cart.Id <= 0)
+            return;
+
+        if (await fakeStoreService.DeleteCartAsync(cart.Id))
+            OnRemover?.Invoke();
+    }
+
+    private void DoVer()
+    {
+        navigationManager.NavigateTo($"/carrinho/{cart.Id}", false);
     }
 }

@@ -9,19 +9,30 @@
 <PageTitle>Carrinhos de Compras</PageTitle>
 
 <h1>Carrinhos de Compras</h1>
+<p>Lista de carrinhos cadastrados no sistema</p>
 
-<button onclick="history.back()">Retornar</button>
-
-@if (carregando)
-{
-    <p>Carregando produtos...</p>
-}
-
-@foreach (var c in Carrinhos)
-{
-    <CartListView cart="c" />
-    <button>Ver</button>
-}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nº</th>
+            <th>Produtos</th>
+            <th>Quantidades</th>
+            <th>Valor Total</th>
+            <th></th>
+        </tr>
+    </thead>
+    @if (carregando)
+    {
+        <tr>
+            <td colspan="5">Carregando produtos...</td>
+        </tr>
+    }
+    else
+        @foreach (var c in Carrinhos)
+        {
+            <CartListView cart="c" OnRemover="() => { Carrinhos.Remove(c); StateHasChanged(); }" />
+        }
+</table>
 
 @code {
     private List<Cart> Carrinhos = new();
