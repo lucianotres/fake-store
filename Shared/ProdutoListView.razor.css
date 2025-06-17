@@ -1,0 +1,19 @@
+﻿.card {
+    margin: 8px 0;
+}
+
+.card-img-top {
+    width: 150px;
+    height: 150px;
+    margin: 2px 0 0 12px;
+}
+
+.card-footer {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+.card-footer div:first-child {
+    flex: 1;
+}

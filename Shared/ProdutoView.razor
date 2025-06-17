@@ -2,26 +2,39 @@
 @using FakeProduct.Services
 @inject FakeStoreProductsService fakeStoreService;
 
-<div class="box">
-    <div class="field title">
-        <label for="title">Título</label>
-        <input type="text" id="title" placeholder="Título para o produto" @bind="product.Title" />
-    </div>
-    <div class="field price">
-        <label for="price">Preço</label>
-        <input type="number" id="price" placeholder="Preço" @bind="product.Price" />
-    </div>
-    <div class="field descr">
-        <label for="descr">Descrição</label>
-        <input type="text" id="descr" placeholder="Descrição para o produto" @bind="product.Description" />
-    </div>
-    <div class="field image">
-        <label for="image">Imagem</label>
-        <input type="url" id="image" placeholder="Imagem" @bind="product.Image" />
-    </div>
+<div class="h-100 d-flex flex-column align-items-center justify-content-center">
+    <div class="row formStyle p-0">
+        <div class="col-12 col-md-12 p-4">
+            <EditForm Model="product" OnValidSubmit="Salvar">
+                <DataAnnotationsValidator />
+                <div class="mb-6">
+                    <label class="form-label" for="title">Título</label>
+                    <input class="form-control" type="text" id="title" placeholder="Título para o produto" @bind="product.Title" />
+                    <ValidationMessage For="@(() => product.Title)" />
+                </div>
+                <div class="mb-6">
+                    <label class="form-label" for="price">Preço</label>
+                    <input class="form-control" type="number" step="0.01" id="price" placeholder="Preço" @bind="product.Price" />
+                    <ValidationMessage For="@(() => product.Price)" />
+                </div>
+                <div class="mb-6">
+                    <label class="form-label" for="descr">Descrição</label>
+                    <input class="form-control" type="text" id="descr" placeholder="Descrição para o produto" @bind="product.Description" />
+                    <ValidationMessage For="@(() => product.Description)" />
+                </div>
+                <div class="mb-6">
+                    <label class="form-label" for="image">Imagem</label>
+                    <input class="form-control" type="url" id="image" placeholder="Imagem" @bind="product.Image" />
+                    <ValidationMessage For="@(() => product.Image)" />  
+                </div>
 
-    <button type="button" @onclick="Salvar">Salvar</button>
-    <button type="button" @onclick="Cancelar">Cancelar</button>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">Salvar</button>
+                    <button type="button" class="btn btn-danger" @onclick="Cancelar">Cancelar</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -42,12 +55,12 @@
         }
     }
 
-    private void Cancelar(MouseEventArgs args)
+    private void Cancelar()
     {
         OnCancelar?.Invoke();
     }
 
-    private async Task Salvar(MouseEventArgs args)
+    private async Task Salvar()
     {
         if (product.Id == 0)
         {

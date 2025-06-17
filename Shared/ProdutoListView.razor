@@ -1,13 +1,25 @@
 ﻿@using FakeProduct.Models
 
-<div>
-    <h2>@product.Title</h2>
-    <p>@product.Description</p>
-    <img src="@product.Image" alt="@product.Title" style="width: 100px; height: 100px;" />
-    <p>Price: @product.Price.ToString("C")</p>
+<div class="card">
+    <img class="card-img-top" src="@product.Image" alt="@product.Title" />
+    <div class="card-body">
+        <h5 class="card-title">@product.Title</h5>
+        <p class="card-text">@product.Description</p>    
+        <div class="card-footer">
+            <div>Preço: <strong>@product.Price.ToString("C")</strong></div>
+            <button class="btn btn-sm btn-primary" @onclick="() => OnEditar?.Invoke()">Editar</button>
+            <button class="btn btn-sm btn-danger" @onclick="() => OnExcluir?.Invoke()">Excluir</button>
+        </div>
+    </div>
 </div>
 
 @code {
     [Parameter]
     public Product product { get; set; } = new();
+
+    [Parameter]
+    public Action? OnEditar { get; set; }
+
+    [Parameter]
+    public Action? OnExcluir { get; set; }
 }

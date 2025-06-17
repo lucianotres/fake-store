@@ -1,0 +1,11 @@
+﻿.form-label {
+    margin-bottom: 0;
+}
+
+.text-end {
+    margin-top: 8px;
+}
+
+.formStyle div:first-child {
+    min-width: 400px;
+}
