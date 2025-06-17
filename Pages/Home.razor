@@ -1,6 +1,9 @@
 ﻿@page "/"
-@using Blazored.LocalStorage
-@inject ILocalStorageService localStorage
+@using System.Security.Claims
+@using FakeProduct.Services
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject FakeStoreCartsService fakeStoreService
+@inject NavigationManager Navigation
 
 <PageTitle>Início</PageTitle>
 
@@ -8,3 +11,39 @@
 <p>Bem vindos a nossa loja fake!</p>
 
 <p>Escolha uma opção no menu para iniciar</p>
+
+@if (idUser.HasValue)
+{
+    <button class="btn btn-primary" @onclick="DoMeuCarrinho">Meu Carrinho</button>
+}
+
+@code {
+    private int? idUser = null;
+
+    override protected async Task OnInitializedAsync()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        var claim = authState.User.Claims.FirstOrDefault(w => w.Type == ClaimTypes.NameIdentifier);
+        if (claim != null && int.TryParse(claim.Value, out int id))
+        {
+            idUser = id;
+        }
+    }
+
+    private async void DoMeuCarrinho()
+    {
+        if (!idUser.HasValue)
+            return;
+
+        var carts = await fakeStoreService.GetCartsAsync();
+        if (carts == null)
+            return;
+
+        var cart = carts.FirstOrDefault(w => w.UserId == idUser.Value);
+        if (cart == null)
+            return;
+
+        Navigation.NavigateTo($"/carrinho/{cart.Id}", false);
+    }
+}
