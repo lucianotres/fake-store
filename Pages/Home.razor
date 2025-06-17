@@ -4,8 +4,9 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject LocalStorageDataService localStorageService
 @inject NavigationManager Navigation
+@inject IJSRuntime jsRuntime
 
-<PageTitle>Início</PageTitle>
+<PageTitle>Fake Store - Início</PageTitle>
 
 <h1>Loja Fake</h1>
 <p>Bem vindos a nossa loja fake!</p>
@@ -23,12 +24,7 @@
     override protected async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-
-        var claim = authState.User.Claims.FirstOrDefault(w => w.Type == ClaimTypes.NameIdentifier);
-        if (claim != null && int.TryParse(claim.Value, out int id))
-        {
-            idUser = id;
-        }
+        idUser = authState.GetUserId();
     }
 
     private async void DoMeuCarrinho()
@@ -40,7 +36,10 @@
 
         var cart = localStorageService.Carrinhos.FirstOrDefault(w => w.UserId == idUser.Value);
         if (cart == null)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Você não possui um carrinho criado. Por favor, crie um carrinho primeiro.");
             return;
+        }
 
         Navigation.NavigateTo($"/carrinho/{cart.Id}", false);
     }

@@ -5,7 +5,7 @@
 @inject LocalStorageDataService localStorageDataService
 @inject NavigationManager navigationManager
 
-<PageTitle>Carrinho @CarrinhoId</PageTitle>
+<PageTitle>Fake Store - Carrinho @CarrinhoId</PageTitle>
 
 <h3>Carrinho nº @CarrinhoId</h3>
 
@@ -90,6 +90,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        await localStorageDataService.AtualizarListaProdutos();
         await CarregaCarrinho();
     }
 
@@ -99,8 +100,7 @@ else
             return;
 
         if (!localStorageDataService.Carrinhos.Exists(w => w.Id == CarrinhoId))
-        {
-            await localStorageDataService.AtualizarListaProdutos();
+        {          
             await localStorageDataService.AtualizarListaCarrinhos();
         }
 

@@ -4,12 +4,18 @@
 @using FakeProduct.Services
 @using Microsoft.AspNetCore.Authorization
 @inject FakeStoreCartsService fakeStoreService
-@inject LocalStorageDataService localStorageService;
+@inject LocalStorageDataService localStorageService
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject IJSRuntime jsRuntime
+@inject NavigationManager navigation
 
-<PageTitle>Carrinhos de Compras</PageTitle>
+<PageTitle>Fake Store - Carrinhos de Compras</PageTitle>
 
 <h1>Carrinhos de Compras</h1>
 <p>Lista de carrinhos cadastrados no sistema</p>
+
+<button class="btn btn-success" @onclick="() => ListarCarrinhos()">Atualizar Lista</button>
+<button class="btn btn-primary" @onclick="DoNovoCarrinho">Novo Carrinho</button>
 
 <table class="table">
     <thead>
@@ -37,12 +43,12 @@
 </table>
 
 @code {
-    private List<Cart> Carrinhos = new();
+    private IList<Cart> Carrinhos { get => localStorageService.Carrinhos ?? new (); }
     private bool carregando = false;
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && localStorageService.Carrinhos.Count == 0)
             ListarCarrinhos();
     }
 
@@ -54,8 +60,7 @@
             StateHasChanged();
 
             await localStorageService.AtualizarListaProdutos();
-
-            Carrinhos = await fakeStoreService.GetCartsAsync();
+            await localStorageService.AtualizarListaCarrinhos();
         }
         finally
         {
@@ -64,4 +69,27 @@
         }
     }
 
+    private async void DoNovoCarrinho()
+    {
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.GetUserId();
+
+        var novoCarrinho = new Cart
+        {
+            UserId = userId.GetValueOrDefault(),
+            Date = DateTime.Now,
+            Products = new List<CartProduct>()
+        };
+
+        var confirmaNovo = await fakeStoreService.PostCartAsync(novoCarrinho);
+
+        if (confirmaNovo == null)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Erro ao criar novo carrinho. Tente novamente.");
+            return;
+        }
+
+        localStorageService.Carrinhos.Add(confirmaNovo);
+        navigation.NavigateTo($"/carrinho/{confirmaNovo.Id}", false);
+    }
 }

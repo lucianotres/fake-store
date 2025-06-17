@@ -3,9 +3,16 @@
 @inject LocalStorageDataService localStorageService
 @inject FakeStoreCartsService fakeStoreService
 @inject NavigationManager navigationManager
+@inject AuthenticationStateProvider authenticationStateProvider
 
 <tr>
-    <td>@cart.Id</td>
+    <td>
+        <text>@cart.Id</text>&ensp;
+        @if(idUser.HasValue && cart.UserId == idUser.Value)
+        {
+            <span class="badge bg-success">Meu</span>
+        }
+    </td>
     @if (cart.Products.Count == 0) {
         <td>Sem</td>
     }
@@ -27,9 +34,10 @@
     [Parameter]
     public Action? OnRemover { get; set; }
 
+    private int? idUser = null;
     private decimal Total = 0;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (cart == null)
         {
@@ -37,6 +45,9 @@
         }
         else
         {
+            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+            idUser = authState.GetUserId();
+
             Total = cart.Products.Sum(p =>
             {
                 var product = localStorageService.Produtos.FirstOrDefault(w => w.Id == p.ProductId);
