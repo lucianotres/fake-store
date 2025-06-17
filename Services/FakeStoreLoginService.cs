@@ -13,17 +13,31 @@ public class FakeStoreLoginService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<bool> FazerLogin(string username, string password)
+    public async Task<string?> FazerLogin(string username, string password)
     {
         _log.LogInformation($"Tentando fazer login com usuário {username}...");
         var client = _httpClientFactory.CreateClient("fakestore");
         var response = await client.PostAsJsonAsync("/auth/login", new { username, password });
 
-        if (response.IsSuccessStatusCode)
-            _log.LogInformation($"Login realizado com sucesso!");
-        else
+        if (!response.IsSuccessStatusCode)
+        {
             _log.LogError($"Falha {response.StatusCode}: não foi possível fazer login");
+            return null;
+        }
 
-        return response.IsSuccessStatusCode;
+        var responseContent = await response.Content.ReadFromJsonAsync<LoginTokenResponse>();
+
+        if (responseContent == null || string.IsNullOrWhiteSpace(responseContent.Token))
+        {
+            _log.LogError("Resposta vazia do servidor");
+            return null;
+        }
+
+        return responseContent.Token;
     }
+}
+
+public class LoginTokenResponse
+{
+    public string Token { get; set; } = string.Empty;
 }

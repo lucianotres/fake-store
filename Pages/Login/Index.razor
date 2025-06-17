@@ -1,0 +1,75 @@
+﻿@page "/login"
+@using FakeProduct.Services
+@inject FakeStoreLoginService fakeStoreLoginService
+@inject FakeStoreUsersService fakeStoreUsersService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider authProvider
+
+<h3>Login</h3>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Você já está logado!</p>
+        <a href="/">Voltar para a página inicial</a>
+    </Authorized>
+    <NotAuthorized>
+        @if(Carregando)
+        {
+            <p>Verificando...</p>
+        }
+        else
+        {
+            <div class="form login">
+                <div class="field">
+                    <label for="username">Usuário</label>
+                    <input id="username" type="text" @bind="Username" placeholder="Digite seu usuário" />
+                </div>
+                <div class="field">
+                    <label for="password">Senha</label>
+                    <input id="password" type="password" @bind="Password" placeholder="Digite sua senha" />
+                </div>
+                <button @onclick="DoLogin">Login</button>
+            </div>
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    public bool Carregando { get; set; } = false;
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? ReturnPath { get; set; } = null;
+
+    private async void DoLogin()
+    {
+        if (!Validar() || Carregando)
+            return;
+
+        Carregando = true;
+        StateHasChanged();
+        try
+        {
+            var token = await fakeStoreLoginService.FazerLogin(Username, Password);
+
+            if (token == null)
+            {
+                return;
+            }
+
+            await ((FakeStoreAuthenticationStateProvider)authProvider).SetUserAuthenticated(token);
+            Navigation.NavigateTo(ReturnPath ?? "/");
+        }
+        finally
+        {
+            Carregando = false;
+            StateHasChanged();
+        }
+    }
+
+    private bool Validar()
+    {
+        return true;
+    }
+}

@@ -1,6 +1,8 @@
 ﻿@page "/produtos"
+@attribute [Authorize]
 @using FakeProduct.Models
 @using FakeProduct.Services
+@using Microsoft.AspNetCore.Authorization
 @inject FakeStoreProductsService fakeStoreService
 
 <PageTitle>Cadastro de Produtos</PageTitle>

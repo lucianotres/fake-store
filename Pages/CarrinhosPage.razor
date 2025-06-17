@@ -1,6 +1,8 @@
 ﻿@page "/carrinhos"
+@attribute [Authorize]
 @using FakeProduct.Models
 @using FakeProduct.Services
+@using Microsoft.AspNetCore.Authorization
 @inject FakeStoreCartsService fakeStoreService
 @inject LocalStorageDataService localStorageService;
 

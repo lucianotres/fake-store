@@ -1,6 +1,8 @@
 ﻿@page "/usuarios"
+@attribute [Authorize]
 @using FakeProduct.Models
 @using FakeProduct.Services
+@using Microsoft.AspNetCore.Authorization
 @inject FakeStoreUsersService fakeStoreService
 
 <PageTitle>Cadastro de Usuários</PageTitle>

@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject NavigationManager Navigation
+@using System.Net
+
+@code {
+    protected override void OnInitialized()
+    {
+        var path = new Uri(Navigation.Uri);
+
+        Navigation.NavigateToLogin($"login?returnPath={WebUtility.HtmlEncode(path.AbsolutePath)}");
+    }
+}
