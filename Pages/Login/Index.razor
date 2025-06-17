@@ -1,5 +1,6 @@
 ﻿@page "/login"
 @using FakeProduct.Services
+@using System.ComponentModel.DataAnnotations
 @inject FakeStoreLoginService fakeStoreLoginService
 @inject FakeStoreUsersService fakeStoreUsersService
 @inject NavigationManager Navigation
@@ -19,39 +20,41 @@
         }
         else
         {
-            <div class="form login">
-                <div class="field">
-                    <label for="username">Usuário</label>
-                    <input id="username" type="text" @bind="Username" placeholder="Digite seu usuário" />
+            <EditForm Model="Model" Context="formContext" class="form login" OnValidSubmit="DoLogin">
+                <DataAnnotationsValidator />
+                <div class="mb-3">
+                    <label class="form-label" for="username">Usuário</label>
+                    <input class="form-control" id="username" type="text" @bind="Model.Username" placeholder="Digite seu usuário" />
+                    <ValidationMessage For="@(() => Model.Username)" />
                 </div>
-                <div class="field">
-                    <label for="password">Senha</label>
-                    <input id="password" type="password" @bind="Password" placeholder="Digite sua senha" />
+                <div class="mb-3">
+                    <label class="form-label" for="password">Senha</label>
+                    <input class="form-control" id="password" type="password" @bind="Model.Password" placeholder="Digite sua senha" />
+                    <ValidationMessage For="@(() => Model.Password)" />
                 </div>
-                <button @onclick="DoLogin">Login</button>
-            </div>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </EditForm>
         }
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
-    public bool Carregando { get; set; } = false;
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public bool Carregando { get; private set; } = false;
+    public LoginModel Model { get; private set; } = new();
 
     [Parameter]
     public string? ReturnPath { get; set; } = null;
 
     private async void DoLogin()
     {
-        if (!Validar() || Carregando)
+        if (Carregando)
             return;
 
         Carregando = true;
         StateHasChanged();
         try
         {
-            var token = await fakeStoreLoginService.FazerLogin(Username, Password);
+            var token = await fakeStoreLoginService.FazerLogin(Model.Username, Model.Password);
 
             if (token == null)
             {
@@ -68,8 +71,12 @@
         }
     }
 
-    private bool Validar()
+    public class LoginModel 
     {
-        return true;
+        [Required(ErrorMessage = "Usuário não informado!")]
+        public string Username { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Senha não informada!")]
+        public string Password { get; set; } = string.Empty;
     }
 }

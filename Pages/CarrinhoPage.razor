@@ -1,0 +1,133 @@
+﻿@page "/carrinho/{CarrinhoId:int}"
+@using FakeProduct.Models
+@using FakeProduct.Services
+@inject FakeStoreCartsService fakeStoreCartsService
+@inject LocalStorageDataService localStorageDataService
+
+<PageTitle>Carrinho @CarrinhoId</PageTitle>
+
+<h3>Carrinho nº @CarrinhoId</h3>
+
+@if(Carrinho == null)
+{
+    <p>Carrinho não encontrado!</p>
+}
+else
+{
+    <div>
+        <div>Data: @Carrinho?.Date</div>
+    </div>
+
+    <div>
+        <h4>Produtos</h4>
+        @if(Carrinho?.Products == null || Carrinho.Products.Count == 0)
+        {
+            <p>Nenhum produto adicionado.</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var i in Products)
+                {
+                    <li>
+                        <div>@i.product?.Title</div>
+                        <div>@i.product?.Price.ToString("C")</div>
+                        <div>
+                            @if (i.cartProduct == AlteraQtde)
+                            {
+                                <input type="number" @bind="i.cartProduct.Quantity" min="1" />
+                                <button @onclick="() => DoAlterarQtdSalva(i.cartProduct)">Salvar</button>
+                                <button @onclick="() => DoAlterarQtd(i.cartProduct)">Cancela</button>
+                            }
+                            else
+                            {            
+                                <text> @i.cartProduct.Quantity </text>
+                                <button @onclick="() => DoAlterarQtd(i.cartProduct)">Alterar</button>
+                            }
+                        </div>
+                        <div>@(((i.product?.Price ?? 0) * i.cartProduct.Quantity).ToString("C"))</div>
+                        <button @onclick="() => DoRemover(i.cartProduct)">Remover</button>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int CarrinhoId { get; set; }
+
+    public Cart? Carrinho { get; set; } = null;
+
+    public IEnumerable<(CartProduct cartProduct, Product? product)> Products 
+    {
+        get => Carrinho?.Products
+            .Select(cp =>
+            {
+                var product = localStorageDataService.Produtos.FirstOrDefault(p => p.Id == cp.ProductId);
+                return (cp, product);
+            }) ?? Enumerable.Empty<(CartProduct, Product?)>();
+    }
+
+    private CartProduct? AlteraQtde = null;
+    private int AlteraQtdeOriginal = 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await localStorageDataService.AtualizarListaProdutos();
+        await CarregaCarrinho();
+    }
+
+    private async Task CarregaCarrinho()
+    {
+        if (CarrinhoId <= 0)
+            return;
+
+        Carrinho = await fakeStoreCartsService.GetCartAsync(CarrinhoId);
+    }
+
+    private void DoAlterarQtd(CartProduct cartProduct)
+    {
+        if (AlteraQtde == cartProduct)
+        {
+            cartProduct.Quantity = AlteraQtdeOriginal; //restaura a quantidade original
+            AlteraQtde = null; //se já estava selecionado, desmarca
+            return;
+        }
+
+        AlteraQtdeOriginal = cartProduct.Quantity;
+        AlteraQtde = cartProduct;
+    }
+
+    private async void DoAlterarQtdSalva(CartProduct cartProduct)
+    {
+        if (Carrinho == null)
+            return;
+
+        AlteraQtde = null;
+        await SalvarAlteracores();
+    }
+
+    private async void DoRemover(CartProduct cartProduct)
+    {
+        if (Carrinho == null)
+            return;
+
+        Carrinho.Products.Remove(cartProduct);
+        await SalvarAlteracores();
+    }
+
+    private async Task SalvarAlteracores()
+    {
+        if (Carrinho == null)
+            return;
+
+        var result = await fakeStoreCartsService.PutCartAsync(Carrinho.Id, Carrinho);
+        if (result == null || result.Products.Count != Carrinho.Products.Count) //recarrega a lista se difere
+        {
+            await CarregaCarrinho();
+        }
+    }
+
+}
