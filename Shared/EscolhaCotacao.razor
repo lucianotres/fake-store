@@ -1,0 +1,44 @@
+﻿@using FakeProduct.Models
+@using FakeProduct.Services
+@inject ILogger<EscolhaCotacao> Logger
+
+<label for="cotacao">Cotação:</label>
+<select id="cotacao" class="form-select" @bind="MinhaCotacaoEsolhida">
+    <option value="">--Selecione--</option>
+    @foreach (var c in MinhasCotacoes.Todas)
+    {
+        <option value="@c.Para">@c.Nome</option>
+    }
+</select>
+
+@code {
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
+
+    public string? MinhaCotacaoEsolhida 
+    { 
+        get => cotacao?.Escolhida?.Para;
+        set
+        {
+            var novo = value;
+            if (novo != MinhaCotacaoEsolhida)
+            {
+                _ = TrocaEscolha(novo);
+            }
+        }
+    }
+
+    private async Task TrocaEscolha(string? novo)
+    {
+        Logger.LogInformation($"Troca de cotação escolhida: {novo}");
+
+        if (string.IsNullOrEmpty(novo))
+        {
+            await cotacao.DefinirCotacaoEscolhida(null);
+            return;
+        }
+
+        var co = MinhasCotacoes.Todas.FirstOrDefault(c => c.Para == novo);
+        await cotacao.DefinirCotacaoEscolhida(co);
+    }
+}

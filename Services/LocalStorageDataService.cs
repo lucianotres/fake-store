@@ -9,7 +9,7 @@ public class LocalStorageDataService
     public List<Product> Produtos { get; private set; } = new();
     public List<User> Usuarios { get; private set; } = new();
     public List<Cart> Carrinhos { get; private set; } = new();
-
+    
     public LocalStorageDataService(IServiceProvider serviceProvider)
     {
         _servciceProvider = serviceProvider;
@@ -51,6 +51,18 @@ public class LocalStorageDataService
         {
             Carrinhos.Clear();
             Carrinhos.AddRange(carrinhos);
+            MapearProdutos();
+        }
+    }
+    private void MapearProdutos()
+    {
+        if (Produtos.Count == 0 || Carrinhos.Count == 0)
+            return;
+
+        foreach (var carrinho in Carrinhos)
+        {
+            foreach (var p in carrinho.Products)
+                p.Produto = Produtos.FirstOrDefault(w => w.Id == p.ProductId);                
         }
     }
 }

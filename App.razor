@@ -1,4 +1,5 @@
-﻿<CascadingAuthenticationState>
+﻿@using FakeProduct.Models
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
@@ -23,3 +24,20 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code {
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
+
+    [Inject]
+    public required CascadingValueSource<MinhasCotacoes> cascCotacao { get; set; }
+
+    protected override void OnInitialized()
+    {
+        cotacao.PropertyChanged += async (s, a) =>
+        {
+            Console.WriteLine($"Cotação alterada: {a.PropertyName}");
+            await cascCotacao.NotifyChangedAsync();
+        };
+    }
+}

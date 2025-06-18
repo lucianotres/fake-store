@@ -9,7 +9,13 @@
         </h5>
         <p class="card-text">@product.Description</p>    
         <div class="card-footer">
-            <div>Preço: <strong>@product.Price.ToString("C")</strong></div>
+            <div>
+                Preço: <strong>$ @product.Price.ToString("#,##0.00")</strong>
+                @if (cotacao.Cotacao != null)
+                {
+                    <text>&nbsp; em cotação: <strong>@cotacao.Cotacao.ConvertFromUSD(product.Price)?.ToString("#,##0.00")</strong></text>
+                }
+            </div>
             @if (OnSelecionar != null)
             {
                 <button class="btn btn-sm btn-primary" @onclick="() => OnSelecionar?.Invoke()">Selecionar</button>
@@ -35,4 +41,7 @@
 
     [Parameter]
     public Action? OnSelecionar { get; set; }
+
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
 }

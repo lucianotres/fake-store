@@ -23,7 +23,8 @@
             <th>Nº</th>
             <th>Produtos</th>
             <th>Quantidades</th>
-            <th>Valor Total</th>
+            <th>Valor Total (USD$)</th>
+            <th>Valor Total (@(cotacao.Cotacao == null ? " - " : $"{cotacao.Cotacao?.codein}$"))</th>
             <th></th>
         </tr>
     </thead>
@@ -31,7 +32,7 @@
         @if (carregando)
         {
             <tr>
-                <td colspan="5">Carregando produtos...</td>
+                <td colspan="5">Carregando compras...</td>
             </tr>
         }
         else
@@ -40,15 +41,31 @@
                 <CartListView cart="c" OnRemover="() => { Carrinhos.Remove(c); StateHasChanged(); }" />
             }
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-end">
+                TOTAL:
+            </td>
+            <td>@TotalOriginal.ToString("#,##0.00")</td>
+            <td>@(TotalCotacao.HasValue ? TotalCotacao?.ToString("#,##0.00") : "-")</td>
+            <td></td>
+        </tr>
+    </tfoot>
 </table>
 
 @code {
     private IList<Cart> Carrinhos { get => localStorageService.Carrinhos ?? new (); }
     private bool carregando = false;
 
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
+
+    public decimal TotalOriginal { get => Carrinhos.Sum(c => c.Total); }
+    public decimal? TotalCotacao { get => Carrinhos.Sum(c => cotacao.Cotacao?.ConvertFromUSD(c.Total)); }
+
     protected override void OnAfterRender(bool firstRender)
     {
-        if (firstRender && localStorageService.Carrinhos.Count == 0)
+        if (firstRender && (localStorageService.Carrinhos.Count == 0 || localStorageService.Produtos.Count == 0))
             ListarCarrinhos();
     }
 

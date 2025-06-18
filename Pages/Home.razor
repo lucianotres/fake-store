@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Security.Claims
+@using FakeProduct.Models
 @using FakeProduct.Services
 @inject AuthenticationStateProvider authenticationStateProvider
 @inject LocalStorageDataService localStorageService
@@ -13,6 +14,11 @@
 
 <p>Escolha uma opção no menu para iniciar</p>
 
+@if (cotacao.Cotacao != null)
+{
+    <p>Escolhido cotação atual em @(cotacao.Cotacao.name): <strong>@cotacao.Cotacao.codein = @cotacao.Cotacao.ask</strong></p>
+}
+
 @if (idUser.HasValue)
 {
     <button class="btn btn-primary" @onclick="DoMeuCarrinho">Meu Carrinho</button>
@@ -20,6 +26,9 @@
 
 @code {
     private int? idUser = null;
+
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
 
     override protected async Task OnInitializedAsync()
     {

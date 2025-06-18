@@ -20,7 +20,8 @@
         <td>@cart.Products.Count</td>
     }
     <td>@cart.Products.Sum(p => p.Quantity)</td>
-    <td>@Total.ToString("C")</td>
+    <td>@cart.Total.ToString("#,##0.00")</td>
+    <td>@(cotacao.Cotacao == null ? "-" : cotacao.Cotacao.ConvertFromUSD(cart.Total)?.ToString("#,##0.00"))</td>
     <td class="text-nowrap">
         <button class="btn btn-primary btn-sm" @onclick="DoVer">Ver</button>
         <button class="btn btn-danger btn-sm" @onclick="DoRemover">Remover</button>
@@ -34,26 +35,18 @@
     [Parameter]
     public Action? OnRemover { get; set; }
 
-    private int? idUser = null;
-    private decimal Total = 0;
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
 
+    private int? idUser = null;
+    
     protected override async Task OnParametersSetAsync()
     {
         if (cart == null)
-        {
-            Total = 0;
-        }
-        else
-        {
-            var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-            idUser = authState.GetUserId();
+            return;
 
-            Total = cart.Products.Sum(p =>
-            {
-                var product = localStorageService.Produtos.FirstOrDefault(w => w.Id == p.ProductId);
-                return product != null ? product.Price * p.Quantity : 0;
-            });
-        }
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        idUser = authState.GetUserId();    
     }
 
     private async void DoRemover()

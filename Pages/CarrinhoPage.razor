@@ -35,6 +35,7 @@ else
                         <th>Preço</th>
                         <th>Quantidade</th>
                         <th>Total</th>
+                        <th>Total Cotação</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -43,7 +44,7 @@ else
                     {
                         <tr>
                             <td>@i.product?.Title</td>
-                            <td>@i.product?.Price.ToString("C")</td>
+                            <td>$ @i.product?.Price.ToString("#,##0.00")</td>
                             <td>
                                 @if (i.cartProduct == AlteraQtde)
                                 {
@@ -57,7 +58,8 @@ else
                                     <button class="btn btn-sm btn-primary" @onclick="() => DoAlterarQtd(i.cartProduct)">Alterar</button>
                                 }
                             </td>
-                            <td>@(((i.product?.Price ?? 0) * i.cartProduct.Quantity).ToString("C"))</td>
+                            <td>$ @(((i.product?.Price ?? 0) * i.cartProduct.Quantity).ToString("#,##0.00"))</td>
+                            <td>@cotacao?.Cotacao?.ConvertFromUSD((i.product?.Price ?? 0) * i.cartProduct.Quantity)?.ToString("#,##0.00")</td>
                             <td>
                                 <button class="btn btn-sm btn-danger" @onclick="() => DoRemover(i.cartProduct)">Remover</button>
                             </td>
@@ -72,6 +74,9 @@ else
 @code {
     [Parameter]
     public int CarrinhoId { get; set; }
+
+    [CascadingParameter]
+    public required MinhasCotacoes cotacao { get; set; }
 
     public Cart? Carrinho { get; set; } = null;
 
@@ -146,7 +151,7 @@ else
         var result = await fakeStoreCartsService.PutCartAsync(Carrinho);
         if (result == null || result.Products.Count != Carrinho.Products.Count) //recarrega a lista se difere
         {
-            CarregaCarrinho();
+            await CarregaCarrinho();
         }
     }
 
