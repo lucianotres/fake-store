@@ -11,5 +11,5 @@ steps:
       git config --global user.email "lucianotres@outlook.com"
       git config --global user.name "Luciano Tres"
       git remote add mirror https://$(GITHUB_TOKEN)@github.com/lucianotres/fake-store.git
-      git push mirror --mirror
+      git push mirror master --tags
     displayName: 'Espelhar para GitHub'
