@@ -1,0 +1,15 @@
+trigger:
+  - master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+
+  - script: |
+      git config --global user.email "lucianotres@outlook.com"
+      git config --global user.name "Luciano Tres"
+      git remote add mirror https://$(GITHUB_TOKEN)@github.com/lucianotres/fake-store.git
+      git push mirror --mirror
+    displayName: 'Espelhar para GitHub'
