@@ -10,6 +10,7 @@ steps:
     fetchDepth: 0
 
   - script: |
+      git switch master
       git config --global user.email "lucianotres@outlook.com"
       git config --global user.name "Luciano Tres"
       git remote add mirror https://$(GITHUB_TOKEN)@github.com/lucianotres/fake-store.git
