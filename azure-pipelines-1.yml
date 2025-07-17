@@ -6,6 +6,8 @@ pool:
 
 steps:
   - checkout: self
+    persistCredentials: true
+    fetchDepth: 0
 
   - script: |
       git config --global user.email "lucianotres@outlook.com"
